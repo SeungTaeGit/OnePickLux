@@ -1,6 +1,7 @@
 package com.onepicklux.domain.product.controller;
 
 import com.onepicklux.domain.product.dto.ProductResponse;
+import com.onepicklux.domain.product.dto.ProductSearchCondition;
 import com.onepicklux.domain.product.service.ProductService;
 import com.onepicklux.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,10 @@ public class ProductController {
 
     @GetMapping
     public ApiResponse<Page<ProductResponse>> getProducts(
+            ProductSearchCondition condition,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ApiResponse.success(productService.getProducts(pageable));
+
+        return ApiResponse.success(productService.getProducts(condition, pageable));
     }
 
     @GetMapping("/{productId}")

@@ -2,14 +2,17 @@ package com.onepicklux.domain.product.service;
 
 import com.onepicklux.domain.product.dto.ProductRequest;
 import com.onepicklux.domain.product.dto.ProductResponse;
+import com.onepicklux.domain.product.dto.ProductSearchCondition;
 import com.onepicklux.domain.product.dto.ProductUpdateRequest;
 import com.onepicklux.domain.product.entity.*;
 import com.onepicklux.domain.product.repository.BrandRepository;
 import com.onepicklux.domain.product.repository.CategoryRepository;
 import com.onepicklux.domain.product.repository.ProductRepository;
+import com.onepicklux.domain.product.repository.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,10 +54,13 @@ public class ProductService {
         return ProductResponse.of(savedProduct);
     }
 
-    public Page<ProductResponse> getProducts(Pageable pageable) {
-        return productRepository.findAll(pageable)
+    public Page<ProductResponse> getProducts(ProductSearchCondition condition, Pageable pageable) {
+        Specification<Product> spec = ProductSpecification.search(condition);
+
+        return productRepository.findAll(spec, pageable)
                 .map(ProductResponse::of);
     }
+
 
     public ProductResponse getProduct(Long productId) {
         Product product = productRepository.findById(productId)
