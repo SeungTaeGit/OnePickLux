@@ -58,6 +58,12 @@ public class Product extends BaseTimeEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
+    @Column(nullable = false)
+    private Integer discountRate = 0;
+
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     @Builder
     public Product(Member seller, Brand brand, Category category, String name, int price, ProductGrade grade, ProductStatus status, String description, String thumbnailUrl) {
         this.seller = seller;
@@ -90,5 +96,22 @@ public class Product extends BaseTimeEntity {
         this.status = status;
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public void updateInfo(Brand brand, Category category, String name, Integer price,
+                           Integer discountRate, ProductStatus status,
+                           ProductGrade grade, String description) {
+        this.brand = brand;
+        this.category = category;
+        this.name = name;
+        this.price = price;
+        this.discountRate = discountRate;
+        this.status = status;
+        if (grade != null) this.grade = grade;
+        if (description != null) this.description = description;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 }

@@ -23,6 +23,7 @@ public class ProductResponse {
     private String status;
     private String thumbnailUrl;
     private List<String> imageUrls;
+    private int discountRate;
 
     public static ProductResponse of(Product product) {
         return ProductResponse.builder()
@@ -31,6 +32,7 @@ public class ProductResponse {
                 .categoryName(product.getCategory().getName())
                 .name(product.getName())
                 .price(product.getPrice())
+                .discountRate(product.getDiscountRate())
                 .grade(product.getGrade().getDescription())
                 .status(product.getStatus().getDescription())
                 .thumbnailUrl(product.getThumbnailUrl())

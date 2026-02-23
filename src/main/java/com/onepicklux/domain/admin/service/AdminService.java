@@ -1,8 +1,14 @@
 package com.onepicklux.domain.admin.service;
 
 import com.onepicklux.domain.admin.dto.AdminDashboardResponse;
+import com.onepicklux.domain.admin.dto.AdminProductUpdateRequest;
 import com.onepicklux.domain.admin.dto.AdminResponseDto;
 import com.onepicklux.domain.member.repository.MemberRepository;
+import com.onepicklux.domain.product.entity.Brand;
+import com.onepicklux.domain.product.entity.Category;
+import com.onepicklux.domain.product.entity.Product;
+import com.onepicklux.domain.product.repository.BrandRepository;
+import com.onepicklux.domain.product.repository.CategoryRepository;
 import com.onepicklux.domain.product.repository.ProductRepository;
 import com.onepicklux.domain.selling.entity.SellingStatus;
 import com.onepicklux.domain.selling.repository.SellingRequestRepository;
@@ -21,6 +27,8 @@ public class AdminService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final SellingRequestRepository sellingRequestRepository;
+    private final BrandRepository brandRepository;
+    private final CategoryRepository categoryRepository;
 
     public AdminDashboardResponse getDashboardStats() {
         return AdminDashboardResponse.builder()
@@ -58,5 +66,37 @@ public class AdminService {
                         .requestedAt(request.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateProduct(Long productId, AdminProductUpdateRequest request) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        Brand brand = brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 브랜드입니다."));
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        product.updateInfo(
+                brand,
+                category,
+                request.getName(),
+                request.getPrice(),
+                request.getDiscountRate(),
+                request.getStatus(),
+                request.getGrade(),
+                request.getDescription()
+        );
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        product.softDelete();
     }
 }

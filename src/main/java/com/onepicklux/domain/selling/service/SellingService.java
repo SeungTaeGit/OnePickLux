@@ -1,10 +1,12 @@
 package com.onepicklux.domain.selling.service;
 
+import com.onepicklux.domain.admin.dto.AdminSellingApproveRequest;
 import com.onepicklux.domain.member.entity.Member;
 import com.onepicklux.domain.member.repository.MemberRepository;
 import com.onepicklux.domain.product.entity.*;
 import com.onepicklux.domain.product.repository.BrandRepository;
 import com.onepicklux.domain.product.repository.CategoryRepository;
+import com.onepicklux.domain.product.repository.InspectionRepository;
 import com.onepicklux.domain.product.repository.ProductRepository;
 import com.onepicklux.domain.selling.dto.SellingRequestDto;
 import com.onepicklux.domain.selling.dto.SellingResponseDto;
@@ -28,6 +30,7 @@ public class SellingService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
+    private final InspectionRepository inspectionRepository;
 
     @Transactional
     public Long createSellingRequest(String memberIdString, SellingRequestDto requestDto) {
@@ -43,14 +46,13 @@ public class SellingService {
 
     public List<SellingResponseDto> getMySellingRequests(String memberIdString) {
         Long memberId = Long.parseLong(memberIdString);
-
         return sellingRequestRepository.findByMemberIdOrderByCreatedAtDesc(memberId).stream()
                 .map(SellingResponseDto::of)
                 .collect(Collectors.toList());
     }
 
     public List<SellingResponseDto> getAllSellingRequests() {
-        return sellingRequestRepository.findAll().stream()
+        return sellingRequestRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(SellingResponseDto::of)
                 .collect(Collectors.toList());
     }
@@ -61,32 +63,48 @@ public class SellingService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 매입 신청을 찾을 수 없습니다."));
 
         sellingRequest.changeStatus(status);
-
-        if (status == SellingStatus.APPROVED) {
-            createProductFromRequest(sellingRequest);
-        }
     }
 
-    private void createProductFromRequest(SellingRequest request) {
-        Brand brand = brandRepository.findAll().stream()
-                .filter(b -> b.getName().equalsIgnoreCase(request.getBrandName()))
-                .findFirst()
-                .orElseGet(() -> brandRepository.findAll().get(0));
+    @Transactional
+    public void approveAndCreateProduct(Long requestId, AdminSellingApproveRequest request) {
+        SellingRequest sellingRequest = sellingRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 매입 신청을 찾을 수 없습니다."));
 
-        Category category = categoryRepository.findAll().get(0);
+        if (sellingRequest.getStatus() == SellingStatus.APPROVED) {
+            throw new IllegalArgumentException("이미 승인 처리된 신청입니다.");
+        }
+
+        Brand brand = brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 브랜드입니다."));
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
 
         Product product = Product.builder()
-                .seller(request.getMember())
+                .seller(sellingRequest.getMember())
                 .brand(brand)
                 .category(category)
-                .name(request.getItemName())
-                .price(0)
-                .grade(ProductGrade.S)
-                .status(ProductStatus.PREPARING)
-                .description("매입 신청된 상품입니다. 검수 후 판매 예정입니다.")
-                .thumbnailUrl(request.getImageUrl())
+                .name(request.getName())
+                .price(request.getPrice())
+                .grade(request.getGrade())
+                .status(ProductStatus.SELLING)
+                .description(request.getDescription())
+                .thumbnailUrl(sellingRequest.getImageUrl())
                 .build();
 
         productRepository.save(product);
+
+        Inspection inspection = Inspection.builder()
+                .product(product)
+                .inspectorName(request.getInspectorName())
+                .leatherStatus(request.getLeatherStatus())
+                .hardwareStatus(request.getHardwareStatus())
+                .shapeStatus(request.getShapeStatus())
+                .innerStatus(request.getInnerStatus())
+                .finalComment(request.getFinalComment())
+                .build();
+
+        inspectionRepository.save(inspection);
+
+        sellingRequest.changeStatus(SellingStatus.APPROVED);
     }
 }
