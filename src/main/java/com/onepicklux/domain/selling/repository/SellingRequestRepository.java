@@ -10,4 +10,6 @@ public interface SellingRequestRepository extends JpaRepository<SellingRequest, 
     List<SellingRequest> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 
     long countByStatus(SellingStatus status);
+
+    List<SellingRequest> findAllByOrderByCreatedAtDesc();
 }
