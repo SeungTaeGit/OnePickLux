@@ -2,13 +2,12 @@ package com.onepicklux.domain.product.repository;
 
 import com.onepicklux.domain.product.dto.ProductSearchCondition;
 import com.onepicklux.domain.product.entity.Product;
-import com.onepicklux.domain.product.entity.ProductStatus;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.criteria.Predicate;
 
 public class ProductSpecification {
 
@@ -17,7 +16,9 @@ public class ProductSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(condition.getKeyword())) {
-                predicates.add(criteriaBuilder.like(root.get("name"), "%" + condition.getKeyword() + "%"));
+                Predicate nameMatch = criteriaBuilder.like(root.get("name"), "%" + condition.getKeyword() + "%");
+                Predicate brandMatch = criteriaBuilder.like(root.join("brand").get("name"), "%" + condition.getKeyword() + "%");
+                predicates.add(criteriaBuilder.or(nameMatch, brandMatch));
             }
 
             if (condition.getCategoryId() != null) {
@@ -31,9 +32,12 @@ public class ProductSpecification {
             if (condition.getMinPrice() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), condition.getMinPrice()));
             }
+
             if (condition.getMaxPrice() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), condition.getMaxPrice()));
             }
+
+            predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

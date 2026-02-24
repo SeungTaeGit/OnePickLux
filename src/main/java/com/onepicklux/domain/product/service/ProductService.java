@@ -5,10 +5,7 @@ import com.onepicklux.domain.product.dto.ProductResponse;
 import com.onepicklux.domain.product.dto.ProductSearchCondition;
 import com.onepicklux.domain.product.dto.ProductUpdateRequest;
 import com.onepicklux.domain.product.entity.*;
-import com.onepicklux.domain.product.repository.BrandRepository;
-import com.onepicklux.domain.product.repository.CategoryRepository;
-import com.onepicklux.domain.product.repository.ProductRepository;
-import com.onepicklux.domain.product.repository.ProductSpecification;
+import com.onepicklux.domain.product.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +23,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
@@ -54,19 +52,34 @@ public class ProductService {
         return ProductResponse.of(savedProduct);
     }
 
-    public Page<ProductResponse> getProducts(ProductSearchCondition condition, Pageable pageable) {
+    public Page<ProductResponse> getProducts(ProductSearchCondition condition, Pageable pageable, Long memberId) {
         Specification<Product> spec = ProductSpecification.search(condition);
+        Page<Product> products = productRepository.findAll(spec, pageable);
 
-        return productRepository.findAll(spec, pageable)
-                .map(ProductResponse::of);
+        if (memberId == null) {
+            return products.map(product -> ProductResponse.of(product, false));
+        }
+
+        List<Long> likedProductIds = productLikeRepository.findLikedProductIdsByMemberId(memberId);
+
+        return products.map(product -> {
+            boolean isLiked = likedProductIds.contains(product.getId());
+            return ProductResponse.of(product, isLiked);
+        });
     }
 
 
-    public ProductResponse getProduct(Long productId) {
+    public ProductResponse getProduct(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
-        return ProductResponse.of(product);
+        if (memberId == null) {
+            return ProductResponse.of(product, false);
+        }
+
+        boolean isLiked = productLikeRepository.findLikedProductIdsByMemberId(memberId).contains(productId);
+
+        return ProductResponse.of(product, isLiked);
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package com.onepicklux.domain.product.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.onepicklux.domain.product.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,14 @@ public class ProductResponse {
     private List<String> imageUrls;
     private int discountRate;
 
+    @JsonProperty("isLiked")
+    private boolean isLiked;
+
     public static ProductResponse of(Product product) {
+        return of(product, false);
+    }
+
+    public static ProductResponse of(Product product, boolean isLiked) {
         return ProductResponse.builder()
                 .productId(product.getId())
                 .brandName(product.getBrand().getName())
@@ -39,6 +47,7 @@ public class ProductResponse {
                 .imageUrls(product.getImages().stream()
                         .map(image -> image.getImageUrl())
                         .collect(Collectors.toList()))
+                .isLiked(isLiked)
                 .build();
     }
 }
