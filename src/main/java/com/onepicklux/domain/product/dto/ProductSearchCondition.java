@@ -11,4 +11,5 @@ public class ProductSearchCondition {
     private Long brandId;
     private Integer minPrice;
     private Integer maxPrice;
+    private String filter;
 }

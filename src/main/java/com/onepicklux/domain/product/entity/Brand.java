@@ -18,15 +18,19 @@ public class Brand {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String englishName;
+
+    @Column(nullable = false)
+    private String koreanName;
 
     private String logoUrl;
 
     private boolean isDisplay;
 
     @Builder
-    public Brand(String name, String logoUrl, boolean isDisplay) {
-        this.name = name;
+    public Brand(String englishName, String koreanName, String logoUrl, boolean isDisplay) {
+        this.englishName = englishName;
+        this.koreanName = koreanName;
         this.logoUrl = logoUrl;
         this.isDisplay = isDisplay;
     }

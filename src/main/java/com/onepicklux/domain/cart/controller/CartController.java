@@ -43,4 +43,14 @@ public class CartController {
         cartService.deleteCartItem(userDetails.getUsername(), cartItemId);
         return ApiResponse.success("장바구니에서 상품을 삭제했습니다.");
     }
+
+    @GetMapping("/count")
+    public ApiResponse<Integer> getCartItemCount(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ApiResponse.success(0);
+        }
+        return ApiResponse.success(cartService.getCartItemCount(userDetails.getUsername()));
+    }
 }

@@ -4,9 +4,7 @@ import com.onepicklux.domain.admin.dto.AdminDashboardResponse;
 import com.onepicklux.domain.admin.dto.AdminProductUpdateRequest;
 import com.onepicklux.domain.admin.dto.AdminResponseDto;
 import com.onepicklux.domain.member.repository.MemberRepository;
-import com.onepicklux.domain.product.entity.Brand;
-import com.onepicklux.domain.product.entity.Category;
-import com.onepicklux.domain.product.entity.Product;
+import com.onepicklux.domain.product.entity.*;
 import com.onepicklux.domain.product.repository.BrandRepository;
 import com.onepicklux.domain.product.repository.CategoryRepository;
 import com.onepicklux.domain.product.repository.ProductRepository;
@@ -43,7 +41,7 @@ public class AdminService {
         return productRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(product -> AdminResponseDto.AdminProductResponse.builder()
                         .productId(product.getId())
-                        .brandName(product.getBrand().getName())
+                        .brandName(product.getBrand().getKoreanName() + " (" + product.getBrand().getEnglishName() + ")")
                         .name(product.getName())
                         .price(product.getPrice())
                         // .discountRate(product.getDiscountRate())
@@ -98,5 +96,31 @@ public class AdminService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
         product.softDelete();
+    }
+
+    @Transactional
+    public void registerDirectProduct(Long brandId, Long categoryId, String name, Integer price,
+                                      Integer discountRate, String status, String grade,
+                                      String description, String thumbnailUrl) {
+
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new IllegalArgumentException("브랜드를 찾을 수 없습니다."));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
+
+        Product product = Product.builder()
+                .brand(brand)
+                .category(category)
+                .name(name)
+                .price(price)
+                .discountRate(discountRate)
+                .status(ProductStatus.valueOf(status))
+                .grade(ProductGrade.valueOf(grade))
+                .description(description)
+                .thumbnailUrl(thumbnailUrl)
+                .build();
+
+        productRepository.save(product);
     }
 }

@@ -6,15 +6,13 @@ import com.onepicklux.domain.product.service.ProductService;
 import com.onepicklux.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -26,12 +24,21 @@ public class ProductController {
     @GetMapping
     public ApiResponse<Page<ProductResponse>> getProducts(
             ProductSearchCondition condition,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false, defaultValue = "new") String sort,
+            @PageableDefault(size = 20) Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
+
+        Sort customSort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        if ("best".equalsIgnoreCase(sort)) {
+            customSort = Sort.by(Sort.Direction.DESC, "viewCount");
+        }
+
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), customSort);
 
         Long memberId = (userDetails != null) ? Long.parseLong(userDetails.getUsername()) : null;
 
-        return ApiResponse.success(productService.getProducts(condition, pageable, memberId));
+        return ApiResponse.success(productService.getProducts(condition, pageRequest, memberId));
     }
 
     @GetMapping("/{productId}")

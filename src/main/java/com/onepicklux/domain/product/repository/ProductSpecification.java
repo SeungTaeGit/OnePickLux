@@ -37,6 +37,10 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), condition.getMaxPrice()));
             }
 
+            if ("sale".equalsIgnoreCase(condition.getFilter())) {
+                predicates.add(criteriaBuilder.greaterThan(root.get("discountRate"), 0));
+            }
+
             predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

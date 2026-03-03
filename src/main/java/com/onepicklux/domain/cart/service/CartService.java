@@ -42,17 +42,15 @@ public class CartService {
                     return cartRepository.save(newCart);
                 });
 
-        CartItem savedCartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId())
-                .orElse(null);
+        boolean isAlreadyExist = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId()).isPresent();
 
-        if (savedCartItem != null) {
-            savedCartItem.addCount(request.getCount());
-            return savedCartItem.getId();
-        } else {
-            CartItem cartItem = CartItem.createCartItem(cart, product, request.getCount());
-            cartItemRepository.save(cartItem);
-            return cartItem.getId();
+        if (isAlreadyExist) {
+            throw new IllegalArgumentException("이미 장바구니에 담긴 상품입니다.");
         }
+
+        CartItem cartItem = CartItem.createCartItem(cart, product, request.getCount());
+        cartItemRepository.save(cartItem);
+        return cartItem.getId();
     }
 
     public List<CartItemResponse> getCartList(String memberIdString) {
@@ -81,5 +79,13 @@ public class CartService {
         }
 
         cartItemRepository.delete(cartItem);
+    }
+
+    public int getCartItemCount(String memberIdString) {
+        Long memberId = Long.parseLong(memberIdString);
+
+        return cartRepository.findByMemberId(memberId)
+                .map(cart -> cartItemRepository.countByCartId(cart.getId()))
+                .orElse(0);
     }
 }

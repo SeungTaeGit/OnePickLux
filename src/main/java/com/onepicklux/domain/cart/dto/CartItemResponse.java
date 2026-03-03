@@ -23,7 +23,7 @@ public class CartItemResponse {
         return CartItemResponse.builder()
                 .cartItemId(cartItem.getId())
                 .productId(cartItem.getProduct().getId())
-                .brandName(cartItem.getProduct().getBrand().getName())
+                .brandName(cartItem.getProduct().getBrand().getKoreanName() + " (" + cartItem.getProduct().getBrand().getEnglishName() + ")")
                 .productName(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
                 .count(cartItem.getCount())

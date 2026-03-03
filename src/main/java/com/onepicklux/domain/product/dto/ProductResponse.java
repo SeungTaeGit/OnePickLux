@@ -36,7 +36,7 @@ public class ProductResponse {
     public static ProductResponse of(Product product, boolean isLiked) {
         return ProductResponse.builder()
                 .productId(product.getId())
-                .brandName(product.getBrand().getName())
+                .brandName(product.getBrand().getKoreanName() + " (" + product.getBrand().getEnglishName() + ")")
                 .categoryName(product.getCategory().getName())
                 .name(product.getName())
                 .price(product.getPrice())

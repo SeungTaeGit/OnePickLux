@@ -8,9 +8,11 @@ import com.onepicklux.domain.product.dto.ProductRequest;
 import com.onepicklux.domain.product.dto.ProductResponse;
 import com.onepicklux.domain.product.service.ProductService;
 import com.onepicklux.global.common.ApiResponse;
+import com.onepicklux.global.common.FileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final ProductService productService;
+    private final FileService fileService;
 
     @GetMapping("/dashboard")
     public ApiResponse<AdminDashboardResponse> getDashboardStats() {
@@ -55,5 +58,29 @@ public class AdminController {
     public ApiResponse<String> deleteProduct(@PathVariable Long productId) {
         adminService.deleteProduct(productId);
         return ApiResponse.success("상품이 안전하게 삭제(숨김) 처리되었습니다.");
+    }
+
+    @PostMapping("/products/new")
+    public ApiResponse<String> createDirectProduct(
+            @RequestParam("brandId") Long brandId,
+            @RequestParam("categoryId") Long categoryId,
+            @RequestParam("name") String name,
+            @RequestParam("price") Integer price,
+            @RequestParam("discountRate") Integer discountRate,
+            @RequestParam("status") String status,
+            @RequestParam("grade") String grade,
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        String thumbnailUrl = null;
+        if (image != null && !image.isEmpty()) {
+            thumbnailUrl = fileService.uploadImage(image);
+        }
+
+        adminService.registerDirectProduct(
+                brandId, categoryId, name, price, discountRate, status, grade, description, thumbnailUrl
+        );
+
+        return ApiResponse.success("상품이 성공적으로 직접 등록되었습니다.");
     }
 }

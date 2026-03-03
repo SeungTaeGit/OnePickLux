@@ -62,10 +62,15 @@ public class Product extends BaseTimeEntity {
     private Integer discountRate = 0;
 
     @Column(nullable = false)
+    private int viewCount = 0;
+
+    @Column(nullable = false)
     private boolean isDeleted = false;
 
     @Builder
-    public Product(Member seller, Brand brand, Category category, String name, int price, ProductGrade grade, ProductStatus status, String description, String thumbnailUrl) {
+    public Product(Member seller, Brand brand, Category category, String name, int price,
+                   ProductGrade grade, ProductStatus status, String description,
+                   String thumbnailUrl, Integer discountRate) { // 💡 discountRate 추가!
         this.seller = seller;
         this.brand = brand;
         this.category = category;
@@ -75,6 +80,9 @@ public class Product extends BaseTimeEntity {
         this.status = status;
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
+        this.discountRate = (discountRate != null) ? discountRate : 0;
+        this.viewCount = 0;
+        this.isDeleted = false;
     }
 
     public void updateInfo(String name, int price, String description) {
@@ -113,5 +121,9 @@ public class Product extends BaseTimeEntity {
 
     public void softDelete() {
         this.isDeleted = true;
+    }
+
+    public void addViewCount() {
+        this.viewCount++;
     }
 }
