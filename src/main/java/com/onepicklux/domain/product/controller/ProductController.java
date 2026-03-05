@@ -32,6 +32,8 @@ public class ProductController {
 
         if ("best".equalsIgnoreCase(sort)) {
             customSort = Sort.by(Sort.Direction.DESC, "viewCount");
+        } else if ("sale".equalsIgnoreCase(sort)) {
+            customSort = Sort.by(Sort.Direction.DESC, "discountRate");
         }
 
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), customSort);
