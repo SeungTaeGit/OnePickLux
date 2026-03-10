@@ -17,8 +17,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
-@SQLDelete(sql = "UPDATE product SET deleted_at = NOW() WHERE product_id = ?")
-@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE product SET is_deleted = true, deleted_at = NOW() WHERE product_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Product extends BaseTimeEntity {
 
     @Id
@@ -70,7 +70,7 @@ public class Product extends BaseTimeEntity {
     @Builder
     public Product(Member seller, Brand brand, Category category, String name, int price,
                    ProductGrade grade, ProductStatus status, String description,
-                   String thumbnailUrl, Integer discountRate) { // 💡 discountRate 추가!
+                   String thumbnailUrl, Integer discountRate) {
         this.seller = seller;
         this.brand = brand;
         this.category = category;
@@ -125,5 +125,9 @@ public class Product extends BaseTimeEntity {
 
     public void addViewCount() {
         this.viewCount++;
+    }
+
+    public void addDetailImage(ProductImage image) {
+        this.images.add(image);
     }
 }

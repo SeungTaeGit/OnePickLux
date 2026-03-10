@@ -24,6 +24,7 @@ public class ProductImage {
     @Column(nullable = false)
     private String imageUrl;
 
+    @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
     @Builder

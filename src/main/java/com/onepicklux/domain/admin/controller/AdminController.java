@@ -9,6 +9,7 @@ import com.onepicklux.domain.product.dto.ProductResponse;
 import com.onepicklux.domain.product.service.ProductService;
 import com.onepicklux.global.common.ApiResponse;
 import com.onepicklux.global.common.FileService;
+import com.onepicklux.global.common.S3UploaderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final ProductService productService;
-    private final FileService fileService;
+    private final S3UploaderService s3UploaderService;
 
     @GetMapping("/dashboard")
     public ApiResponse<AdminDashboardResponse> getDashboardStats() {
@@ -41,8 +42,12 @@ public class AdminController {
     }
 
     @PostMapping("/products")
-    public ApiResponse<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
-        return ApiResponse.created(productService.createProduct(request));
+    public ApiResponse<ProductResponse> createProduct(
+            @Valid @RequestPart("request") ProductRequest request,
+            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages) {
+
+        return ApiResponse.created(productService.createProduct(request, thumbnail, detailImages));
     }
 
     @PatchMapping("/products/{productId}")
@@ -70,17 +75,14 @@ public class AdminController {
             @RequestParam("status") String status,
             @RequestParam("grade") String grade,
             @RequestParam("description") String description,
-            @RequestParam(value = "image", required = false) MultipartFile image
+            @RequestParam("image") MultipartFile image
     ) {
-        String thumbnailUrl = null;
-        if (image != null && !image.isEmpty()) {
-            thumbnailUrl = fileService.uploadImage(image);
-        }
+        String thumbnailUrl = s3UploaderService.uploadImage(image);
 
         adminService.registerDirectProduct(
                 brandId, categoryId, name, price, discountRate, status, grade, description, thumbnailUrl
         );
 
-        return ApiResponse.success("상품이 성공적으로 직접 등록되었습니다.");
+        return ApiResponse.success("상품이 성공적으로 등록되었습니다.");
     }
 }

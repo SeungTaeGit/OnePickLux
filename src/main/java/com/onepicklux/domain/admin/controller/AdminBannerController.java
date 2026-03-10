@@ -3,7 +3,7 @@ package com.onepicklux.domain.admin.controller;
 import com.onepicklux.domain.admin.entity.Banner;
 import com.onepicklux.domain.admin.repository.BannerRepository;
 import com.onepicklux.global.common.ApiResponse;
-import com.onepicklux.global.common.FileService;
+import com.onepicklux.global.common.S3UploaderService; // 💡 FileService 대신 S3UploaderService 임포트
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.util.List;
 public class AdminBannerController {
 
     private final BannerRepository bannerRepository;
-    private final FileService fileService;
+    private final S3UploaderService s3UploaderService;
 
     @GetMapping
     public ApiResponse<List<Banner>> getBanners() {
@@ -30,7 +30,7 @@ public class AdminBannerController {
             @RequestParam("isActive") boolean isActive,
             @RequestParam("image") MultipartFile image
     ) {
-        String imageUrl = fileService.uploadImage(image);
+        String imageUrl = s3UploaderService.uploadImage(image);
 
         if (imageUrl == null) {
             throw new IllegalArgumentException("이미지 파일은 필수입니다.");

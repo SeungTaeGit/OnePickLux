@@ -6,12 +6,14 @@ import com.onepicklux.domain.product.dto.ProductSearchCondition;
 import com.onepicklux.domain.product.dto.ProductUpdateRequest;
 import com.onepicklux.domain.product.entity.*;
 import com.onepicklux.domain.product.repository.*;
+import com.onepicklux.global.common.S3UploaderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,26 +26,44 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductLikeRepository productLikeRepository;
+    private final S3UploaderService s3UploaderService;
 
     @Transactional
-    public ProductResponse createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request, MultipartFile thumbnail, List<MultipartFile> detailImages) {
         Brand brand = brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 브랜드를 찾을 수 없습니다."));
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 카테고리를 찾을 수 없습니다."));
 
-        Product product = request.toEntity(brand, category);
+        String thumbnailUrl = null;
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailUrl = s3UploaderService.uploadImage(thumbnail);
+        }
 
-        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
-            List<String> urls = request.getImageUrls();
-            for (int i = 0; i < urls.size(); i++) {
-                ProductImage image = ProductImage.builder()
-                        .product(product)
-                        .imageUrl(urls.get(i))
-                        .displayOrder(i + 1)
-                        .build();
-                product.getImages().add(image);
+        Product product = Product.builder()
+                .brand(brand)
+                .category(category)
+                .name(request.getName())
+                .price(request.getPrice())
+                .grade(request.getGrade())
+                .status(request.getStatus())
+                .description(request.getDescription())
+                .thumbnailUrl(thumbnailUrl)
+                .build();
+
+        if (detailImages != null && !detailImages.isEmpty()) {
+            int order = 1;
+            for (MultipartFile file : detailImages) {
+                if (!file.isEmpty()) {
+                    String detailUrl = s3UploaderService.uploadImage(file);
+                    ProductImage image = ProductImage.builder()
+                            .product(product)
+                            .imageUrl(detailUrl)
+                            .displayOrder(order++)
+                            .build();
+                    product.getImages().add(image);
+                }
             }
         }
 
@@ -68,7 +88,6 @@ public class ProductService {
         });
     }
 
-
     public ProductResponse getProduct(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
@@ -83,7 +102,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProduct(Long productId, ProductUpdateRequest request) {
+    public ProductResponse updateProduct(Long productId, ProductUpdateRequest request, MultipartFile thumbnail, List<MultipartFile> detailImages) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
@@ -93,20 +112,26 @@ public class ProductService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 카테고리를 찾을 수 없습니다."));
 
+        String updatedThumbnailUrl = product.getThumbnailUrl();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            updatedThumbnailUrl = s3UploaderService.uploadImage(thumbnail);
+        }
+
         product.update(brand, category, request.getName(), request.getPrice(),
-                request.getGrade(), request.getStatus(), request.getDescription(), request.getThumbnailUrl());
+                request.getGrade(), request.getStatus(), request.getDescription(), updatedThumbnailUrl);
 
-        if (request.getImageUrls() != null) {
-            product.getImages().clear();
-
-            List<String> urls = request.getImageUrls();
-            for (int i = 0; i < urls.size(); i++) {
-                ProductImage image = ProductImage.builder()
-                        .product(product)
-                        .imageUrl(urls.get(i))
-                        .displayOrder(i + 1)
-                        .build();
-                product.getImages().add(image);
+        if (detailImages != null && !detailImages.isEmpty()) {
+            int order = 1;
+            for (MultipartFile file : detailImages) {
+                if (!file.isEmpty()) {
+                    String detailUrl = s3UploaderService.uploadImage(file);
+                    ProductImage image = ProductImage.builder()
+                            .product(product)
+                            .imageUrl(detailUrl)
+                            .displayOrder(order++)
+                            .build();
+                    product.getImages().add(image);
+                }
             }
         }
 
