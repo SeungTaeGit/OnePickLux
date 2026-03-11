@@ -29,11 +29,20 @@ public class AdminService {
     private final CategoryRepository categoryRepository;
 
     public AdminDashboardResponse getDashboardStats() {
+        Long sumOriginal = productRepository.sumOriginalPriceOfSellingProducts();
+        Long sumDiscounted = productRepository.sumDiscountedPriceOfSellingProducts();
+        Long soldOutCount = productRepository.countSoldOutProducts();
+
         return AdminDashboardResponse.builder()
                 .totalMembers(memberRepository.count())
                 .totalProducts(productRepository.count())
                 .pendingSellingRequests(sellingRequestRepository.countByStatus(SellingStatus.REQUESTED))
                 .todayNewOrders(0)
+
+                .totalOriginalInventoryValue(sumOriginal)
+                .totalDiscountedInventoryValue(sumDiscounted)
+                .soldOutCount(soldOutCount)
+                .todayRevenue(0)
                 .build();
     }
 

@@ -68,8 +68,7 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-
-        return ProductResponse.of(savedProduct);
+        return ProductResponse.of(savedProduct, false);
     }
 
     public Page<ProductResponse> getProducts(ProductSearchCondition condition, Pageable pageable, Long memberId) {
@@ -81,7 +80,6 @@ public class ProductService {
         }
 
         List<Long> likedProductIds = productLikeRepository.findLikedProductIdsByMemberId(memberId);
-
         return products.map(product -> {
             boolean isLiked = likedProductIds.contains(product.getId());
             return ProductResponse.of(product, isLiked);
@@ -97,7 +95,6 @@ public class ProductService {
         }
 
         boolean isLiked = productLikeRepository.findLikedProductIdsByMemberId(memberId).contains(productId);
-
         return ProductResponse.of(product, isLiked);
     }
 
@@ -114,6 +111,7 @@ public class ProductService {
 
         String updatedThumbnailUrl = product.getThumbnailUrl();
         if (thumbnail != null && !thumbnail.isEmpty()) {
+            s3UploaderService.deleteImage(product.getThumbnailUrl());
             updatedThumbnailUrl = s3UploaderService.uploadImage(thumbnail);
         }
 
@@ -121,6 +119,11 @@ public class ProductService {
                 request.getGrade(), request.getStatus(), request.getDescription(), updatedThumbnailUrl);
 
         if (detailImages != null && !detailImages.isEmpty()) {
+            for (ProductImage oldImage : product.getImages()) {
+                s3UploaderService.deleteImage(oldImage.getImageUrl());
+            }
+            product.getImages().clear();
+
             int order = 1;
             for (MultipartFile file : detailImages) {
                 if (!file.isEmpty()) {
@@ -135,13 +138,19 @@ public class ProductService {
             }
         }
 
-        return ProductResponse.of(product);
+        return ProductResponse.of(product, false);
     }
 
     @Transactional
     public void deleteProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+        s3UploaderService.deleteImage(product.getThumbnailUrl());
+
+        for (ProductImage productImage : product.getImages()) {
+            s3UploaderService.deleteImage(productImage.getImageUrl());
+        }
 
         productRepository.delete(product);
     }

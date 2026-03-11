@@ -2,6 +2,7 @@ package com.onepicklux.domain.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.onepicklux.domain.product.entity.Product;
+import com.onepicklux.domain.product.entity.ProductImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,9 +45,13 @@ public class ProductResponse {
                 .grade(product.getGrade().getDescription())
                 .status(product.getStatus().getDescription())
                 .thumbnailUrl(product.getThumbnailUrl())
-                .imageUrls(product.getImages().stream()
-                        .map(image -> image.getImageUrl())
-                        .collect(Collectors.toList()))
+                .imageUrls(
+                        product.getImages() != null ?
+                                product.getImages().stream()
+                                        .map(ProductImage::getImageUrl)
+                                        .collect(Collectors.toList())
+                                : null
+                )
                 .isLiked(isLiked)
                 .build();
     }
