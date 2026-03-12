@@ -16,6 +16,8 @@ public class AdminResponseDto {
         private Integer discountRate;
         private Integer stock;
         private String status;
+        private String thumbnailUrl;
+        private LocalDateTime createdAt;
     }
 
     @Getter

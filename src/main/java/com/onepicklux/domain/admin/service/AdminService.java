@@ -10,9 +10,11 @@ import com.onepicklux.domain.product.repository.CategoryRepository;
 import com.onepicklux.domain.product.repository.ProductRepository;
 import com.onepicklux.domain.selling.entity.SellingStatus;
 import com.onepicklux.domain.selling.repository.SellingRequestRepository;
+import com.onepicklux.global.common.S3UploaderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ public class AdminService {
     private final SellingRequestRepository sellingRequestRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
+    private final S3UploaderService s3UploaderService;
 
     public AdminDashboardResponse getDashboardStats() {
         Long sumOriginal = productRepository.sumOriginalPriceOfSellingProducts();
@@ -50,12 +53,15 @@ public class AdminService {
         return productRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(product -> AdminResponseDto.AdminProductResponse.builder()
                         .productId(product.getId())
-                        .brandName(product.getBrand().getKoreanName() + " (" + product.getBrand().getEnglishName() + ")")
+                        .brandName(product.getBrand() != null ?
+                                product.getBrand().getKoreanName() + " (" + product.getBrand().getEnglishName() + ")" : "Unknown")
                         .name(product.getName())
                         .price(product.getPrice())
-                        // .discountRate(product.getDiscountRate())
+                        .discountRate(product.getDiscountRate())
                         // .stock(product.getStock())
                         .status(product.getStatus().name())
+                        .thumbnailUrl(product.getThumbnailUrl())
+                        .createdAt(product.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -76,7 +82,8 @@ public class AdminService {
     }
 
     @Transactional
-    public void updateProduct(Long productId, AdminProductUpdateRequest request) {
+    public void updateProduct(Long productId, AdminProductUpdateRequest request,
+                              MultipartFile thumbnail, List<MultipartFile> detailImages) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
@@ -87,6 +94,14 @@ public class AdminService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
 
+        String updatedThumbnailUrl = product.getThumbnailUrl();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            if (product.getThumbnailUrl() != null) {
+                s3UploaderService.deleteImage(product.getThumbnailUrl());
+            }
+            updatedThumbnailUrl = s3UploaderService.uploadImage(thumbnail);
+        }
+
         product.updateInfo(
                 brand,
                 category,
@@ -95,8 +110,29 @@ public class AdminService {
                 request.getDiscountRate(),
                 request.getStatus(),
                 request.getGrade(),
-                request.getDescription()
+                request.getDescription(),
+                updatedThumbnailUrl
         );
+
+        if (detailImages != null && !detailImages.isEmpty()) {
+
+            for (ProductImage oldImage : product.getImages()) {
+                s3UploaderService.deleteImage(oldImage.getImageUrl());
+            }
+
+            product.getImages().clear();
+
+            for (MultipartFile file : detailImages) {
+                if (file != null && !file.isEmpty()) {
+                    String detailUrl = s3UploaderService.uploadImage(file);
+                    ProductImage newImage = ProductImage.builder()
+                            .product(product)
+                            .imageUrl(detailUrl)
+                            .build();
+                    product.addDetailImage(newImage);
+                }
+            }
+        }
     }
 
     @Transactional

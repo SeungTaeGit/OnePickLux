@@ -1,14 +1,14 @@
--- 브랜드 데이터 (중복 방지를 위해 INSERT IGNORE 사용 - MySQL 기준)
-INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Hermès', 'hermes_logo.png', true);
-INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Chanel', 'chanel_logo.png', true);
-INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Rolex', 'rolex_logo.png', true);
-INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Louis Vuitton', 'lv_logo.png', true);
-INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Dior', 'dior_logo.png', true);
-
--- 카테고리 데이터 (1뎁스)
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('가방', 1, NULL);
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('의류', 1, NULL);
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('주얼리', 1, NULL);
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('신발', 1, NULL);
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('지갑', 1, NULL);
-INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('시계', 1, NULL);
+-- -- 브랜드 데이터 (중복 방지를 위해 INSERT IGNORE 사용 - MySQL 기준)
+-- INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Hermès', 'hermes_logo.png', true);
+-- INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Chanel', 'chanel_logo.png', true);
+-- INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Rolex', 'rolex_logo.png', true);
+-- INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Louis Vuitton', 'lv_logo.png', true);
+-- INSERT IGNORE INTO brand (name, logo_url, is_display) VALUES ('Dior', 'dior_logo.png', true);
+--
+-- -- 카테고리 데이터 (1뎁스)
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('가방', 1, NULL);
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('의류', 1, NULL);
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('주얼리', 1, NULL);
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('신발', 1, NULL);
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('지갑', 1, NULL);
+-- INSERT IGNORE INTO category (name, depth, parent_id) VALUES ('시계', 1, NULL);

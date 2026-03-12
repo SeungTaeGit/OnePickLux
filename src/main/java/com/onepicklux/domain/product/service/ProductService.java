@@ -49,6 +49,7 @@ public class ProductService {
                 .grade(request.getGrade())
                 .status(request.getStatus())
                 .description(request.getDescription())
+                .discountRate(request.getDiscountRate())
                 .thumbnailUrl(thumbnailUrl)
                 .build();
 

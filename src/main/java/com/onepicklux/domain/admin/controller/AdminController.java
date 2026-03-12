@@ -50,12 +50,14 @@ public class AdminController {
         return ApiResponse.created(productService.createProduct(request, thumbnail, detailImages));
     }
 
-    @PatchMapping("/products/{productId}")
+    @PutMapping("/products/{productId}")
     public ApiResponse<String> updateProduct(
             @PathVariable Long productId,
-            @RequestBody AdminProductUpdateRequest request
+            @RequestPart(value = "request") AdminProductUpdateRequest request,
+            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages
     ) {
-        adminService.updateProduct(productId, request);
+        adminService.updateProduct(productId, request, thumbnail, detailImages);
         return ApiResponse.success("상품 정보가 성공적으로 수정되었습니다.");
     }
 

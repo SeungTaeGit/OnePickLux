@@ -17,10 +17,10 @@ public class Brand {
     @Column(name = "brand_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String englishName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String koreanName;
 
     private String logoUrl;
@@ -32,6 +32,15 @@ public class Brand {
         this.englishName = englishName;
         this.koreanName = koreanName;
         this.logoUrl = logoUrl;
+        this.isDisplay = isDisplay;
+    }
+
+    public void updateInfo(String englishName, String koreanName, String logoUrl, boolean isDisplay) {
+        this.englishName = englishName;
+        this.koreanName = koreanName;
+        if (logoUrl != null) {
+            this.logoUrl = logoUrl;
+        }
         this.isDisplay = isDisplay;
     }
 }

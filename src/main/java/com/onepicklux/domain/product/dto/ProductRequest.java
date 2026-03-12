@@ -36,6 +36,8 @@ public class ProductRequest {
 
     private List<String> imageUrls;
 
+    private Integer discountRate;
+
     public Product toEntity(Brand brand, Category category) {
         return Product.builder()
                 .brand(brand)
@@ -45,6 +47,7 @@ public class ProductRequest {
                 .grade(grade)
                 .status(status)
                 .description(description)
+                .discountRate(discountRate)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }

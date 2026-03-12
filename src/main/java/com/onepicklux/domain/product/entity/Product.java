@@ -108,7 +108,7 @@ public class Product extends BaseTimeEntity {
 
     public void updateInfo(Brand brand, Category category, String name, Integer price,
                            Integer discountRate, ProductStatus status,
-                           ProductGrade grade, String description) {
+                           ProductGrade grade, String description, String thumbnailUrl) {
         this.brand = brand;
         this.category = category;
         this.name = name;
@@ -117,6 +117,7 @@ public class Product extends BaseTimeEntity {
         this.status = status;
         if (grade != null) this.grade = grade;
         if (description != null) this.description = description;
+        if (thumbnailUrl != null) this.thumbnailUrl = thumbnailUrl; // 💡 추가
     }
 
     public void softDelete() {
