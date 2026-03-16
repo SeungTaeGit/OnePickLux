@@ -2,6 +2,7 @@ package com.onepicklux.domain.product.service;
 
 import com.onepicklux.domain.member.entity.Member;
 import com.onepicklux.domain.member.repository.MemberRepository;
+import com.onepicklux.domain.product.dto.ProductResponse;
 import com.onepicklux.domain.product.entity.Product;
 import com.onepicklux.domain.product.entity.ProductLike;
 import com.onepicklux.domain.product.repository.ProductLikeRepository;
@@ -9,6 +10,9 @@ import com.onepicklux.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +46,15 @@ public class ProductLikeService {
                     productLikeRepository.save(newLike);
                     return true;
                 });
+    }
+
+    public List<ProductResponse> getMyLikedProducts(String memberIdString) {
+        Long memberId = Long.parseLong(memberIdString);
+
+        List<Product> likedProducts = productLikeRepository.findLikedProductsByMemberId(memberId);
+
+        return likedProducts.stream()
+                .map(product -> ProductResponse.of(product, true))
+                .collect(Collectors.toList());
     }
 }

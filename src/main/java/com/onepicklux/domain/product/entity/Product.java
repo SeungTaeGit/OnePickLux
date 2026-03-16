@@ -45,6 +45,10 @@ public class Product extends BaseTimeEntity {
     private int price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "product_type", nullable = false)
+    private ProductType type;
+
+    @Enumerated(EnumType.STRING)
     private ProductGrade grade;
 
     @Enumerated(EnumType.STRING)
@@ -69,13 +73,14 @@ public class Product extends BaseTimeEntity {
 
     @Builder
     public Product(Member seller, Brand brand, Category category, String name, int price,
-                   ProductGrade grade, ProductStatus status, String description,
+                   ProductType type, ProductGrade grade, ProductStatus status, String description,
                    String thumbnailUrl, Integer discountRate) {
         this.seller = seller;
         this.brand = brand;
         this.category = category;
         this.name = name;
         this.price = price;
+        this.type = (type != null) ? type : ProductType.PRE_OWNED;
         this.grade = grade;
         this.status = status;
         this.description = description;
@@ -95,11 +100,13 @@ public class Product extends BaseTimeEntity {
         this.status = status;
     }
 
-    public void update(Brand brand, Category category, String name, Integer price, ProductGrade grade, ProductStatus status, String description, String thumbnailUrl) {
+    public void update(Brand brand, Category category, String name, Integer price,
+                       ProductType type, ProductGrade grade, ProductStatus status, String description, String thumbnailUrl) { // 💡 type 추가
         this.brand = brand;
         this.category = category;
         this.name = name;
         this.price = price;
+        if (type != null) this.type = type;
         this.grade = grade;
         this.status = status;
         this.description = description;
@@ -108,16 +115,23 @@ public class Product extends BaseTimeEntity {
 
     public void updateInfo(Brand brand, Category category, String name, Integer price,
                            Integer discountRate, ProductStatus status,
-                           ProductGrade grade, String description, String thumbnailUrl) {
+                           ProductType type, ProductGrade grade, String description) {
         this.brand = brand;
         this.category = category;
         this.name = name;
         this.price = price;
         this.discountRate = discountRate;
         this.status = status;
+        if (type != null) this.type = type;
         if (grade != null) this.grade = grade;
         if (description != null) this.description = description;
-        if (thumbnailUrl != null) this.thumbnailUrl = thumbnailUrl; // 💡 추가
+    }
+
+    public void updateInfo(Brand brand, Category category, String name, Integer price,
+                           Integer discountRate, ProductStatus status,
+                           ProductType type, ProductGrade grade, String description, String thumbnailUrl) {
+        updateInfo(brand, category, name, price, discountRate, status, type, grade, description);
+        if (thumbnailUrl != null) this.thumbnailUrl = thumbnailUrl;
     }
 
     public void softDelete() {

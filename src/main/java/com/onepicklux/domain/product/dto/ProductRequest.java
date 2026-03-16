@@ -24,6 +24,8 @@ public class ProductRequest {
     @NotNull(message = "가격은 필수입니다.")
     private Integer price;
 
+    private ProductType type;
+
     @NotNull(message = "상품 등급은 필수입니다.")
     private ProductGrade grade;
 
@@ -45,6 +47,7 @@ public class ProductRequest {
                 .name(name)
                 .price(price)
                 .grade(grade)
+                .type(type != null ? type : ProductType.PRE_OWNED)
                 .status(status)
                 .description(description)
                 .discountRate(discountRate)

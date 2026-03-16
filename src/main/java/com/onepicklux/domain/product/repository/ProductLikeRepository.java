@@ -20,4 +20,11 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
 
     @Query("SELECT pl.product.id FROM ProductLike pl WHERE pl.member.id = :memberId")
     List<Long> findLikedProductIdsByMemberId(@Param("memberId") Long memberId);
+
+    @Query("SELECT pl.product FROM ProductLike pl " +
+            "JOIN FETCH pl.product.brand " +
+            "JOIN FETCH pl.product.category " +
+            "WHERE pl.member.id = :memberId " +
+            "ORDER BY pl.createdAt DESC")
+    List<Product> findLikedProductsByMemberId(@Param("memberId") Long memberId);
 }

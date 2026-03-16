@@ -10,6 +10,7 @@ import com.onepicklux.domain.member.entity.Member;
 import com.onepicklux.domain.member.repository.MemberRepository;
 import com.onepicklux.domain.product.entity.Product;
 import com.onepicklux.domain.product.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +64,14 @@ public class CartService {
         }
 
         return cartItemRepository.findByCartId(cart.getId()).stream()
+                .filter(cartItem -> {
+                    try {
+                        cartItem.getProduct().getName();
+                        return true;
+                    } catch (EntityNotFoundException e) {
+                        return false;
+                    }
+                })
                 .map(CartItemResponse::of)
                 .collect(Collectors.toList());
     }

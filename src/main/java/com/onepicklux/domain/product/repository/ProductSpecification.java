@@ -45,6 +45,10 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.greaterThan(root.get("discountRate"), 0));
             }
 
+            if (condition.getType() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("type"), condition.getType()));
+            }
+
             predicates.add(criteriaBuilder.notEqual(root.get("status"), ProductStatus.PREPARING));
 
             predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));

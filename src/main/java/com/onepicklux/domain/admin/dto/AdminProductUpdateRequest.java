@@ -2,6 +2,7 @@ package com.onepicklux.domain.admin.dto;
 
 import com.onepicklux.domain.product.entity.ProductGrade;
 import com.onepicklux.domain.product.entity.ProductStatus;
+import com.onepicklux.domain.product.entity.ProductType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,7 @@ public class AdminProductUpdateRequest {
     private Integer discountRate;
     private ProductStatus status;
 
+    private ProductType type;
     private ProductGrade grade;
     private String description;
 

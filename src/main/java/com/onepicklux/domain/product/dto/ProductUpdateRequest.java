@@ -2,6 +2,7 @@ package com.onepicklux.domain.product.dto;
 
 import com.onepicklux.domain.product.entity.ProductGrade;
 import com.onepicklux.domain.product.entity.ProductStatus;
+import com.onepicklux.domain.product.entity.ProductType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -24,6 +25,8 @@ public class ProductUpdateRequest {
 
     @NotNull(message = "가격은 필수입니다.")
     private Integer price;
+
+    private ProductType type;
 
     @NotNull(message = "상품 등급은 필수입니다.")
     private ProductGrade grade;

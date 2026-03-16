@@ -1,14 +1,14 @@
 package com.onepicklux.domain.product.controller;
 
+import com.onepicklux.domain.product.dto.ProductResponse;
 import com.onepicklux.domain.product.service.ProductLikeService;
 import com.onepicklux.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -29,5 +29,13 @@ public class ProductLikeController {
         } else {
             return ApiResponse.success("찜하기를 취소했습니다.");
         }
+    }
+
+    @GetMapping("/likes/me")
+    public ApiResponse<List<ProductResponse>> getMyLikedProducts(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        List<ProductResponse> likedProducts = productLikeService.getMyLikedProducts(userDetails.getUsername());
+        return ApiResponse.success(likedProducts);
     }
 }

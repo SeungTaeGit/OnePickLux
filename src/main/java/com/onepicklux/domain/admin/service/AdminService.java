@@ -109,6 +109,7 @@ public class AdminService {
                 request.getPrice(),
                 request.getDiscountRate(),
                 request.getStatus(),
+                request.getType(),
                 request.getGrade(),
                 request.getDescription(),
                 updatedThumbnailUrl

@@ -87,9 +87,12 @@ public class ProductService {
         });
     }
 
+    @Transactional
     public ProductResponse getProduct(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+        product.addViewCount();
 
         if (memberId == null) {
             return ProductResponse.of(product, false);
@@ -116,7 +119,7 @@ public class ProductService {
             updatedThumbnailUrl = s3UploaderService.uploadImage(thumbnail);
         }
 
-        product.update(brand, category, request.getName(), request.getPrice(),
+        product.update(brand, category, request.getName(), request.getPrice(), request.getType(),
                 request.getGrade(), request.getStatus(), request.getDescription(), updatedThumbnailUrl);
 
         if (detailImages != null && !detailImages.isEmpty()) {

@@ -21,6 +21,8 @@ public class ProductResponse {
     private String categoryName;
     private String name;
     private int price;
+    private String type;
+    private String typeDescription;
     private String grade;
     private String status;
     private String thumbnailUrl;
@@ -42,6 +44,8 @@ public class ProductResponse {
                 .name(product.getName())
                 .price(product.getPrice())
                 .discountRate(product.getDiscountRate())
+                .type(product.getType().name())
+                .typeDescription(product.getType().getDescription())
                 .grade(product.getGrade().getDescription())
                 .status(product.getStatus().getDescription())
                 .thumbnailUrl(product.getThumbnailUrl())

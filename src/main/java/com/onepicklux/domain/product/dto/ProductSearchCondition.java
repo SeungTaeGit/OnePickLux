@@ -1,5 +1,6 @@
 package com.onepicklux.domain.product.dto;
 
+import com.onepicklux.domain.product.entity.ProductType;
 import lombok.Data;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public class ProductSearchCondition {
     private Integer minPrice;
     private Integer maxPrice;
     private String filter;
+    private ProductType type;
 }
