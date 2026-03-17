@@ -14,6 +14,9 @@ public class BrandDto {
         private String englishName;
         private String koreanName;
 
+        private String description;
+        private String themeColor;
+
         @JsonProperty("isDisplay")
         private boolean isDisplay;
     }
@@ -26,6 +29,11 @@ public class BrandDto {
         private String koreanName;
         private String name;
         private String logoUrl;
+
+        private String description;
+        private String themeColor;
+        private String bannerUrl;
+
         private boolean isDisplay;
 
         public static Response from(Brand brand) {
@@ -35,6 +43,9 @@ public class BrandDto {
                     .koreanName(brand.getKoreanName())
                     .name(brand.getKoreanName() + " (" + brand.getEnglishName() + ")")
                     .logoUrl(brand.getLogoUrl())
+                    .description(brand.getDescription())
+                    .themeColor(brand.getThemeColor())
+                    .bannerUrl(brand.getBannerUrl())
                     .isDisplay(brand.isDisplay())
                     .build();
         }

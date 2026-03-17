@@ -34,17 +34,25 @@ public class AdminBrandService {
     }
 
     @Transactional
-    public BrandDto.Response createBrand(BrandDto.Request request, MultipartFile logoImage) {
+    public BrandDto.Response createBrand(BrandDto.Request request, MultipartFile logoImage, MultipartFile bannerImage) {
         String logoUrl = null;
         if (logoImage != null && !logoImage.isEmpty()) {
             logoUrl = s3UploaderService.uploadImage(logoImage);
         }
 
+        String bannerUrl = null;
+        if (bannerImage != null && !bannerImage.isEmpty()) {
+            bannerUrl = s3UploaderService.uploadImage(bannerImage);
+        }
+
         Brand brand = Brand.builder()
                 .englishName(request.getEnglishName())
                 .koreanName(request.getKoreanName())
+                .description(request.getDescription())
+                .themeColor(request.getThemeColor())
                 .isDisplay(request.isDisplay())
                 .logoUrl(logoUrl)
+                .bannerUrl(bannerUrl)
                 .build();
 
         brandRepository.save(brand);
@@ -52,7 +60,7 @@ public class AdminBrandService {
     }
 
     @Transactional
-    public BrandDto.Response updateBrand(Long brandId, BrandDto.Request request, MultipartFile logoImage) {
+    public BrandDto.Response updateBrand(Long brandId, BrandDto.Request request, MultipartFile logoImage, MultipartFile bannerImage) {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(() -> new IllegalArgumentException("브랜드를 찾을 수 없습니다."));
 
@@ -64,7 +72,23 @@ public class AdminBrandService {
             newLogoUrl = s3UploaderService.uploadImage(logoImage);
         }
 
-        brand.updateInfo(request.getEnglishName(), request.getKoreanName(), newLogoUrl, request.isDisplay());
+        String newBannerUrl = null;
+        if (bannerImage != null && !bannerImage.isEmpty()) {
+            if (brand.getBannerUrl() != null) {
+                s3UploaderService.deleteImage(brand.getBannerUrl());
+            }
+            newBannerUrl = s3UploaderService.uploadImage(bannerImage);
+        }
+
+        brand.updateInfo(
+                request.getEnglishName(),
+                request.getKoreanName(),
+                newLogoUrl,
+                request.getDescription(),
+                request.getThemeColor(),
+                newBannerUrl,
+                request.isDisplay()
+        );
 
         return BrandDto.Response.from(brand);
     }

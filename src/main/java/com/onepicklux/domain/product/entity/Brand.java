@@ -25,22 +25,38 @@ public class Brand {
 
     private String logoUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(length = 10)
+    private String themeColor;
+
+    private String bannerUrl;
+
     private boolean isDisplay;
 
     @Builder
-    public Brand(String englishName, String koreanName, String logoUrl, boolean isDisplay) {
+    public Brand(String englishName, String koreanName, String logoUrl,
+                 String description, String themeColor, String bannerUrl, boolean isDisplay) {
         this.englishName = englishName;
         this.koreanName = koreanName;
         this.logoUrl = logoUrl;
+        this.description = description;
+        this.themeColor = (themeColor != null) ? themeColor : "#1A1A1A";
+        this.bannerUrl = bannerUrl;
         this.isDisplay = isDisplay;
     }
 
-    public void updateInfo(String englishName, String koreanName, String logoUrl, boolean isDisplay) {
+    public void updateInfo(String englishName, String koreanName, String logoUrl,
+                           String description, String themeColor, String bannerUrl, boolean isDisplay) {
         this.englishName = englishName;
         this.koreanName = koreanName;
-        if (logoUrl != null) {
-            this.logoUrl = logoUrl;
-        }
+        if (logoUrl != null) this.logoUrl = logoUrl;
+
+        this.description = description;
+        if (themeColor != null) this.themeColor = themeColor;
+        if (bannerUrl != null) this.bannerUrl = bannerUrl;
+
         this.isDisplay = isDisplay;
     }
 }

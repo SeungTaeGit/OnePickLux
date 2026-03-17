@@ -30,9 +30,10 @@ public class AdminBrandController {
     @PostMapping
     public ResponseEntity<ApiResponse<BrandDto.Response>> createBrand(
             @RequestPart(value = "request") BrandDto.Request request,
-            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage) {
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage,
+            @RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage) {
 
-        BrandDto.Response response = adminBrandService.createBrand(request, logoImage);
+        BrandDto.Response response = adminBrandService.createBrand(request, logoImage, bannerImage);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -40,9 +41,10 @@ public class AdminBrandController {
     public ResponseEntity<ApiResponse<BrandDto.Response>> updateBrand(
             @PathVariable Long brandId,
             @RequestPart(value = "request") BrandDto.Request request,
-            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage) {
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage,
+            @RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage) {
 
-        BrandDto.Response response = adminBrandService.updateBrand(brandId, request, logoImage);
+        BrandDto.Response response = adminBrandService.updateBrand(brandId, request, logoImage, bannerImage);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
