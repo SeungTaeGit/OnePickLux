@@ -2,12 +2,16 @@ package com.onepicklux.domain.member.entity;
 
 import com.onepicklux.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "member")
 public class Member extends BaseTimeEntity {
@@ -29,6 +33,27 @@ public class Member extends BaseTimeEntity {
     private String phone;
 
     @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private LocalDate birthDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberGrade grade;
+
+    @Column(nullable = false)
+    private Long totalSpent;
+
+    @Column(nullable = false)
+    private Long availablePoint;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus status;
+
+    private LocalDateTime lastLoginAt;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
@@ -38,13 +63,24 @@ public class Member extends BaseTimeEntity {
     private String providerId;
 
     @Builder
-    public Member(String email, String password, String name, String phone, Role role, AuthProvider provider, String providerId) {
+    public Member(String email, String password, String name, String phone,
+                  Gender gender, LocalDate birthDate,
+                  Role role, AuthProvider provider, String providerId) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phone = phone;
-        this.role = role;
-        this.provider = provider;
+        this.gender = (gender != null) ? gender : Gender.UNKNOWN;
+        this.birthDate = birthDate;
+
+        this.grade = MemberGrade.BRONZE;
+        this.totalSpent = 0L;
+        this.availablePoint = 0L;
+        this.status = MemberStatus.ACTIVE;
+        this.lastLoginAt = LocalDateTime.now();
+
+        this.role = (role != null) ? role : Role.USER;
+        this.provider = (provider != null) ? provider : AuthProvider.LOCAL;
         this.providerId = providerId;
     }
 
@@ -54,5 +90,30 @@ public class Member extends BaseTimeEntity {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void addTotalSpent(Long amount) {
+        this.totalSpent += amount;
+        updateGrade();
+    }
+
+    private void updateGrade() {
+        if (this.totalSpent >= MemberGrade.VIP.getMinTotalSpent()) {
+            this.grade = MemberGrade.VIP;
+        } else if (this.totalSpent >= MemberGrade.GOLD.getMinTotalSpent()) {
+            this.grade = MemberGrade.GOLD;
+        } else if (this.totalSpent >= MemberGrade.SILVER.getMinTotalSpent()) {
+            this.grade = MemberGrade.SILVER;
+        }
+    }
+
+    public void withdraw() {
+        this.status = MemberStatus.WITHDRAWN;
+        this.name = "탈퇴한사용자";
+        this.phone = null;
     }
 }
