@@ -53,6 +53,9 @@ public class Member extends BaseTimeEntity {
 
     private LocalDateTime lastLoginAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String adminMemo;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -115,5 +118,28 @@ public class Member extends BaseTimeEntity {
         this.status = MemberStatus.WITHDRAWN;
         this.name = "탈퇴한사용자";
         this.phone = null;
+    }
+
+    public void updateAdminMemo(String memo) {
+        this.adminMemo = memo;
+    }
+
+    public void suspend() {
+        this.status = MemberStatus.SUSPENDED;
+    }
+
+    public void activate() {
+        this.status = MemberStatus.ACTIVE;
+    }
+
+    public void addPoint(Long amount) {
+        this.availablePoint += amount;
+    }
+
+    public void deductPoint(Long amount) {
+        if (this.availablePoint < amount) {
+            throw new IllegalArgumentException("보유한 포인트보다 많은 금액을 차감할 수 없습니다.");
+        }
+        this.availablePoint -= amount;
     }
 }

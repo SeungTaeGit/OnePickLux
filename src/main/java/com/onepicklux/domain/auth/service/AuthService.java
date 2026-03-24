@@ -44,6 +44,11 @@ public class AuthService {
 
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        member.updateLastLoginAt();
+
         String accessToken = jwtTokenProvider.createToken(authentication);
 
         return TokenResponse.builder()

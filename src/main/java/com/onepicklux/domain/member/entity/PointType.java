@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MemberStatus {
-    ACTIVE("활성 계정"),
-    DORMANT("휴면 계정"),
-    SUSPENDED("정지 계정"),
-    WITHDRAWN("탈퇴 계정");
+public enum PointType {
+    EARN("적립"),
+    USE("사용"),
+    GRANT("관리자 지급"),
+    DEDUCT("관리자 차감");
 
     private final String description;
 }

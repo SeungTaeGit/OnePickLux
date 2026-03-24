@@ -4,5 +4,6 @@ public enum AuthProvider {
     LOCAL,
     KAKAO,
     NAVER,
-    GOOGLE
+    GOOGLE,
+    APPLE
 }

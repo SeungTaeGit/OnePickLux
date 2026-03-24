@@ -1,6 +1,7 @@
 package com.onepicklux.domain.auth.dto;
 
 import com.onepicklux.domain.member.entity.AuthProvider;
+import com.onepicklux.domain.member.entity.Gender;
 import com.onepicklux.domain.member.entity.Member;
 import com.onepicklux.domain.member.entity.Role;
 import jakarta.validation.constraints.Email;
@@ -8,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -25,12 +28,17 @@ public class SignupRequest {
 
     private String phone;
 
+    private Gender gender;
+    private LocalDate birthDate;
+
     public Member toEntity(PasswordEncoder passwordEncoder) {
         return Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .name(name)
                 .phone(phone)
+                .gender(gender)
+                .birthDate(birthDate)
                 .role(Role.USER)
                 .provider(AuthProvider.LOCAL)
                 .build();

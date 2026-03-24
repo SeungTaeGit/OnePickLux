@@ -1,6 +1,7 @@
 package com.onepicklux.domain.auth.service;
 
 import com.onepicklux.domain.member.entity.Member;
+import com.onepicklux.domain.member.entity.MemberStatus;
 import com.onepicklux.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +30,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Member member) {
+        if (member.getStatus() == MemberStatus.WITHDRAWN) {
+            throw new UsernameNotFoundException("탈퇴한 회원입니다.");
+        }
+
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().getKey());
 
         return new User(
